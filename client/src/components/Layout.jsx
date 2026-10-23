@@ -2,22 +2,13 @@ import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
   Home, Search, BarChart2, Calculator, TrendingDown, Heart, Settings,
-  Bell, ShoppingCart, Menu, X, LogOut, LogIn, User
+  Bell, ShoppingCart, Menu, X, LogOut, LogIn, User, Globe
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import CartDrawer from './CartDrawer';
 import CheckoutModal from './CheckoutModal';
-
-const navItems = [
-  { icon: Home, label: 'Bosh sahifa', to: '/' },
-  { icon: Search, label: 'Mahsulot qidirish', to: '/search' },
-  { icon: BarChart2, label: 'Taqqoslash', to: '/compare' },
-  { icon: Calculator, label: 'Byudjet maslahatchi', to: '/budget' },
-  { icon: TrendingDown, label: 'Narx tarixi', to: '/price-history' },
-  { icon: Heart, label: 'Sevimlilar', to: '/favorites' },
-  { icon: Settings, label: 'Sozlamalar', to: '/settings' },
-];
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +16,17 @@ export default function Layout() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { cartCount, setCartDrawerOpen, toastMessage, setToastMessage } = useCart();
+  const { language, setLanguage, t } = useLanguage();
+
+  const navItems = [
+    { icon: Home, label: t('nav_home'), to: '/' },
+    { icon: Search, label: t('nav_search'), to: '/search' },
+    { icon: BarChart2, label: t('nav_compare'), to: '/compare' },
+    { icon: Calculator, label: t('nav_budget'), to: '/budget' },
+    { icon: TrendingDown, label: t('nav_price_history'), to: '/price-history' },
+    { icon: Heart, label: t('nav_favorites'), to: '/favorites' },
+    { icon: Settings, label: t('nav_settings'), to: '/settings' },
+  ];
 
   const handleLogout = async (e) => {
     e.stopPropagation();
@@ -36,15 +38,15 @@ export default function Layout() {
     }
   };
 
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Mehmon';
-  const displayEmail = user?.email || 'Tizimga kiring';
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || t('user_guest');
+  const displayEmail = user?.email || t('user_sign_in');
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f6f8f7]">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 lg:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -52,22 +54,28 @@ export default function Layout() {
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-30 w-[220px] bg-white border-r border-slate-100
-          flex flex-col py-5 px-3 transition-transform duration-300
+          fixed lg:static inset-y-0 left-0 z-50 w-[240px] sm:w-[250px] bg-white border-r border-slate-100
+          flex flex-col py-5 px-3 transition-transform duration-300 shadow-xl lg:shadow-none
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-3 mb-7 cursor-pointer" onClick={() => navigate('/')}>
-          <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <ShoppingCart className="w-5 h-5 text-white" strokeWidth={2.2} />
+        <div
+          className="flex items-center gap-2.5 px-3 mb-7 cursor-pointer"
+          onClick={() => {
+            navigate('/');
+            setSidebarOpen(false);
+          }}
+        >
+          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-md shadow-emerald-500/25 flex-shrink-0 border border-emerald-500/20">
+            <img src="/app-icon.png" alt="SmartSavdo" className="w-full h-full object-cover" />
           </div>
           <div>
-            <div className="font-bold text-slate-800 text-[15px] leading-tight">SmartSavdo</div>
-            <div className="text-[10px] text-emerald-600 font-medium">AI yordamchi savdo</div>
+            <div className="font-black text-slate-800 text-[15.5px] leading-tight">SmartSavdo</div>
+            <div className="text-[10px] text-emerald-600 font-bold">{t('ai_subtitle')}</div>
           </div>
           <button
-            className="ml-auto lg:hidden text-slate-400 hover:text-slate-600"
+            className="ml-auto lg:hidden text-slate-400 hover:text-slate-600 p-1"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="w-5 h-5" />
@@ -75,12 +83,13 @@ export default function Layout() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 space-y-0.5">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto">
           {navItems.map(({ icon: Icon, label, to }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/'}
+              onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-all duration-200 group
                 ${isActive
@@ -114,7 +123,7 @@ export default function Layout() {
             </div>
             <button
               onClick={handleLogout}
-              title="Chiqish"
+              title={t('nav_logout')}
               className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
             >
               <LogOut className="w-4 h-4" />
@@ -122,11 +131,14 @@ export default function Layout() {
           </div>
         ) : (
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => {
+              navigate('/login');
+              setSidebarOpen(false);
+            }}
             className="mt-4 w-full py-2.5 px-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold text-[13px] hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 border border-emerald-200"
           >
             <LogIn className="w-4 h-4" />
-            Kirish / Ro'yxat
+            {t('nav_login')}
           </button>
         )}
       </aside>
@@ -134,22 +146,60 @@ export default function Layout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header className="h-14 bg-white border-b border-slate-100 flex items-center px-4 gap-3 flex-shrink-0">
+        <header className="h-14 bg-white border-b border-slate-100 flex items-center px-3 sm:px-4 gap-2 sm:gap-3 flex-shrink-0">
           <button
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-500"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 text-slate-600"
             onClick={() => setSidebarOpen(true)}
+            aria-label="Menyu"
           >
             <Menu className="w-5 h-5" />
           </button>
+
+          <div
+            onClick={() => navigate('/')}
+            className="lg:hidden flex items-center gap-2 cursor-pointer"
+          >
+            <img src="/app-icon.png" alt="SmartSavdo" className="w-7 h-7 rounded-lg shadow-xs object-cover" />
+            <span className="font-extrabold text-slate-800 text-sm tracking-tight">SmartSavdo</span>
+          </div>
+
           <div className="flex-1" />
-          <button className="relative p-2 rounded-xl hover:bg-slate-50 text-slate-500 transition-colors">
-            <Bell className="w-5 h-5" />
+
+          {/* Quick Language Switcher Pill */}
+          <div className="flex items-center bg-slate-100/90 p-0.5 rounded-xl border border-slate-200/60 shadow-inner">
+            {[
+              { id: 'uz', short: 'UZ' },
+              { id: 'en', short: 'EN' },
+              { id: 'ru', short: 'RU' },
+            ].map(lang => (
+              <button
+                key={lang.id}
+                onClick={() => setLanguage(lang.id)}
+                className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-black transition-all ${
+                  language === lang.id
+                    ? 'bg-emerald-500 text-white shadow-sm scale-105'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                }`}
+                title={`Switch to ${lang.short}`}
+              >
+                {lang.short}
+              </button>
+            ))}
+          </div>
+
+          <button 
+            className="relative p-1.5 sm:p-2 rounded-xl hover:bg-slate-50 text-slate-500 transition-colors"
+            title={t('notifications')}
+          >
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full" />
           </button>
+
+
           <button
             onClick={() => setCartDrawerOpen(true)}
             className="relative p-2 rounded-xl hover:bg-slate-50 text-slate-500 transition-colors cursor-pointer group"
-            title="Savatni ko'rish"
+            title={t('view_cart')}
           >
             <ShoppingCart className="w-5 h-5 group-hover:text-emerald-600 transition-colors" />
             {cartCount > 0 && (
@@ -164,7 +214,7 @@ export default function Layout() {
               onClick={() => navigate('/')}
               className="flex items-center gap-2 pl-2 cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">
+              <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
                 {displayName.charAt(0)}
               </div>
             </div>
@@ -173,7 +223,7 @@ export default function Layout() {
               onClick={() => navigate('/login')}
               className="text-[12px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors"
             >
-              Kirish
+              {t('nav_login').split(' / ')[0]}
             </button>
           )}
         </header>
@@ -214,11 +264,11 @@ export default function Layout() {
       {/* ── MOBILE BOTTOM NAV BAR ── */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white border-t border-slate-100 flex items-center justify-around px-1 py-1.5 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
         {[
-          { icon: Home, label: 'Bosh', to: '/' },
-          { icon: Search, label: 'Qidirish', to: '/search' },
-          { icon: BarChart2, label: 'Taqqos', to: '/compare' },
-          { icon: Heart, label: 'Sevimli', to: '/favorites' },
-          { icon: Settings, label: 'Sozlama', to: '/settings' },
+          { icon: Home, label: t('nav_home'), to: '/' },
+          { icon: Search, label: t('nav_search'), to: '/search' },
+          { icon: BarChart2, label: t('nav_compare'), to: '/compare' },
+          { icon: Heart, label: t('nav_favorites'), to: '/favorites' },
+          { icon: Settings, label: t('nav_settings'), to: '/settings' },
         ].map(({ icon: Icon, label, to }) => (
           <NavLink
             key={to}
@@ -257,9 +307,10 @@ export default function Layout() {
               {cartCount}
             </span>
           )}
-          <span className="text-[9px] font-semibold leading-none">Savat</span>
+          <span className="text-[9px] font-semibold leading-none">{t('cart')}</span>
         </button>
       </nav>
     </div>
   );
 }
+

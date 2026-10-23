@@ -5,27 +5,15 @@ import {
   Cpu, Battery, Smartphone, Eye, SlidersHorizontal, ShoppingBag, ShoppingCart
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useLanguage, localizeProduct } from '../context/LanguageContext';
 import CheckoutModal from '../components/CheckoutModal';
 import { allProducts } from '../data/products';
-
-// ─── CATEGORIES & FILTER TABS ─────────────────────────────────────────────────
-
-const categories = [
-  { label: 'Smartfonlar', filterKey: 'Smartfonlar', img: '/products/iphone-15.jpg' },
-  { label: 'Noutbuklar', filterKey: 'Noutbuklar', img: '/products/macbook-air.jpg' },
-  { label: 'Televizorlar', filterKey: 'Televizorlar', img: '/products/samsung-tv.jpg' },
-  { label: 'Naushniklar', filterKey: 'Naushniklar', img: '/products/sony-headphones.jpg' },
-  { label: 'Maishiy texnika', filterKey: 'Maishiy texnika', img: '/products/washing-machine.jpg' },
-  { label: 'Kiyim', filterKey: 'Kiyim', img: '/products/jacket.jpg' },
-];
-
-const filterTabs = ['Barchasi', 'Smartfonlar', 'Noutbuklar', 'Televizorlar', 'Naushniklar', 'Maishiy texnika', 'Kiyim'];
 
 // Use shared allProducts from data/products.js
 const productList = allProducts;
 
-
 export default function HomePage() {
+  const { language, t } = useLanguage();
   const [activeFilter, setActiveFilter] = useState('Barchasi');
   const [searchValue, setSearchValue] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(productList[0]);
@@ -37,6 +25,30 @@ export default function HomePage() {
   const [checkoutShop, setCheckoutShop] = useState(null);
 
   const { addToCart } = useCart();
+
+  const activeProduct = useMemo(() => {
+    return localizeProduct(selectedProduct, language);
+  }, [selectedProduct, language]);
+
+  const categoriesList = [
+    { label: t('cat_smartphones'), filterKey: 'Smartfonlar', img: '/products/iphone-15.jpg' },
+    { label: t('cat_laptops'), filterKey: 'Noutbuklar', img: '/products/macbook-air.jpg' },
+    { label: t('cat_tvs'), filterKey: 'Televizorlar', img: '/products/samsung-tv.jpg' },
+    { label: t('cat_headphones'), filterKey: 'Naushniklar', img: '/products/sony-headphones.jpg' },
+    { label: t('cat_appliances'), filterKey: 'Maishiy texnika', img: '/products/washing-machine.jpg' },
+    { label: t('cat_clothing'), filterKey: 'Kiyim', img: '/products/jacket.jpg' },
+  ];
+
+  const filterTabsList = [
+    { id: 'Barchasi', label: t('cat_all') },
+    { id: 'Smartfonlar', label: t('cat_smartphones') },
+    { id: 'Noutbuklar', label: t('cat_laptops') },
+    { id: 'Televizorlar', label: t('cat_tvs') },
+    { id: 'Naushniklar', label: t('cat_headphones') },
+    { id: 'Maishiy texnika', label: t('cat_appliances') },
+    { id: 'Kiyim', label: t('cat_clothing') },
+  ];
+
 
   // Smart Filtering by Category, Tabs, and Search Query
   const filteredProducts = useMemo(() => {
@@ -138,57 +150,58 @@ export default function HomePage() {
             {/* Left text */}
             <div className="flex-1 max-w-xl">
               <h1 className="text-2xl md:text-[32px] font-extrabold text-slate-800 leading-tight mb-2">
-                Xarid qilishdan oldin{' '}
-                <span className="text-emerald-600 inline-block">SmartSavdo</span> bilan maslahat qiling!
+                {t('hero_title_prefix')}
+                <span className="text-emerald-600 inline-block">{t('hero_brand')}</span>
+                {t('hero_title_suffix')}
               </h1>
               <p className="text-[13px] md:text-[14px] text-slate-500 leading-relaxed mb-5">
-                Sun'iy intellekt yordamida mahsulotlarni tahlil qiling, narxlarni solishtiring va pulni tejang.
+                {t('hero_desc')}
               </p>
 
               {/* Search bar */}
-              <div className="flex items-center gap-2 bg-white rounded-xl shadow-sm border border-slate-200 p-1.5 pl-3.5 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-white rounded-xl shadow-sm border border-slate-200 p-1 sm:p-1.5 pl-2.5 sm:pl-3.5 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
                 <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
                 <input
                   type="text"
                   value={searchValue}
                   onChange={e => setSearchValue(e.target.value)}
-                  placeholder="Mahsulot nomini yozing yoki rasmini yuklang..."
-                  className="flex-1 bg-transparent text-[13px] text-slate-700 placeholder-slate-400 outline-none"
+                  placeholder={t('search_input_placeholder')}
+                  className="flex-1 bg-transparent text-xs sm:text-[13px] text-slate-700 placeholder-slate-400 outline-none min-w-0"
                 />
                 <button
                   title="Rasm orqali qidirish"
-                  className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 text-slate-400 hover:text-emerald-600 hover:bg-slate-50 rounded-lg transition-colors flex-shrink-0"
                 >
                   <Camera className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleOpenDetail(productList[0])}
-                  className="btn-green px-4 py-2 text-[13px] flex items-center gap-1.5 whitespace-nowrap"
+                  className="btn-green px-3 sm:px-4 py-2 text-xs sm:text-[13px] flex items-center gap-1.5 whitespace-nowrap flex-shrink-0"
                 >
-                  Tahlil qilish <ArrowRight className="w-3.5 h-3.5" />
+                  <span>{t('hero_analyze_btn')}</span> <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Filter tabs */}
-              <div className="flex flex-wrap gap-1.5 mt-4">
-                {filterTabs.map(tab => (
+              <div className="flex flex-wrap gap-1.5 mt-3 sm:mt-4">
+                {filterTabsList.map(tab => (
                   <button
-                    key={tab}
-                    onClick={() => setActiveFilter(tab)}
-                    className={`px-3 py-1 rounded-full text-[11.5px] font-medium border transition-all ${
-                      activeFilter === tab
+                    key={tab.id}
+                    onClick={() => setActiveFilter(tab.id)}
+                    className={`px-3 py-1 rounded-full text-[11px] sm:text-[11.5px] font-medium border transition-all ${
+                      activeFilter === tab.id
                         ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-500/25'
                         : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-600'
                     }`}
                   >
-                    {tab}
+                    {tab.label}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Right 3D Robot Illustration with Shopping Bag */}
-            <div className="flex-shrink-0 relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center">
+            <div className="flex-shrink-0 relative w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 flex items-center justify-center mx-auto md:mx-0">
               <div className="absolute inset-0 bg-emerald-300/30 rounded-full blur-2xl animate-pulse" />
               <img
                 src="/robot.jpg"
@@ -200,44 +213,43 @@ export default function HomePage() {
         </div>
 
         {/* ── KATEGORIYALAR (CATEGORIES WITH REAL PRODUCT IMAGES) ── */}
-        {/* ── KATEGORIYALAR (CATEGORIES WITH REAL PRODUCT IMAGES) ── */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[16px] font-bold text-slate-800">Kategoriyalar</h2>
+            <h2 className="text-[15px] sm:text-[16px] font-bold text-slate-800">{t('categories_heading')}</h2>
             {activeFilter !== 'Barchasi' && (
               <button
                 onClick={() => {
                   setActiveFilter('Barchasi');
                   setSearchValue('');
                 }}
-                className="text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg transition-colors"
+                className="text-[11px] sm:text-[12px] font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg transition-colors"
               >
-                Barchasini ko'rsatish
+                {t('show_all_btn')}
               </button>
             )}
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {categories.map(({ label, img }) => {
-              const isCatActive = activeFilter.toLowerCase() === label.toLowerCase() ||
-                (label === 'Smartfonlar' && (activeFilter.toLowerCase() === 'iphone' || activeFilter.toLowerCase() === 'telefon')) ||
-                (label === 'Televizorlar' && activeFilter.toLowerCase() === 'tv') ||
-                (label === 'Noutbuklar' && activeFilter.toLowerCase() === 'noutbuk') ||
-                (label === 'Naushniklar' && activeFilter.toLowerCase() === 'naushnik');
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
+            {categoriesList.map(({ label, filterKey, img }) => {
+              const isCatActive = activeFilter.toLowerCase() === filterKey.toLowerCase() ||
+                (filterKey === 'Smartfonlar' && (activeFilter.toLowerCase() === 'iphone' || activeFilter.toLowerCase() === 'telefon')) ||
+                (filterKey === 'Televizorlar' && activeFilter.toLowerCase() === 'tv') ||
+                (filterKey === 'Noutbuklar' && activeFilter.toLowerCase() === 'noutbuk') ||
+                (filterKey === 'Naushniklar' && activeFilter.toLowerCase() === 'naushnik');
 
               return (
                 <div
-                  key={label}
+                  key={filterKey}
                   onClick={() => {
-                    setActiveFilter(label);
+                    setActiveFilter(filterKey);
                     setSearchValue('');
                   }}
-                  className={`app-card app-card-hover p-3 flex flex-col items-center gap-2 cursor-pointer group bg-white border transition-all ${
+                  className={`app-card app-card-hover p-2 sm:p-3 flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer group bg-white border transition-all ${
                     isCatActive
                       ? 'border-emerald-500 ring-2 ring-emerald-500/30 bg-emerald-50/50 shadow-sm'
                       : 'border-slate-100 hover:border-emerald-200'
                   }`}
                 >
-                  <div className={`w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center p-1 transition-colors ${
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden flex items-center justify-center p-1 transition-colors ${
                     isCatActive ? 'bg-emerald-100/70' : 'bg-slate-50/60 group-hover:bg-emerald-50/60'
                   }`}>
                     <img
@@ -246,7 +258,7 @@ export default function HomePage() {
                       className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-200"
                     />
                   </div>
-                  <span className={`text-[12px] font-semibold text-center leading-tight transition-colors ${
+                  <span className={`text-[11px] sm:text-[12px] font-semibold text-center leading-tight transition-colors ${
                     isCatActive ? 'text-emerald-700 font-bold' : 'text-slate-700 group-hover:text-emerald-600'
                   }`}>
                     {label}
@@ -257,15 +269,18 @@ export default function HomePage() {
           </div>
         </div>
 
+
         {/* ── ENG YAXSHI TAKLIFLAR (BEST OFFERS) ── */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <h2 className="text-[16px] font-bold text-slate-800">
-                {activeFilter === 'Barchasi' ? 'Eng yaxshi takliflar' : `${activeFilter} takliflari`}
+                {activeFilter === 'Barchasi'
+                  ? t('best_offers_heading')
+                  : `${filterTabsList.find(f => f.id === activeFilter)?.label || activeFilter} ${t('deals_suffix')}`}
               </h2>
               <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">
-                {filteredProducts.length} ta mahsulot
+                {filteredProducts.length} {t('count_products')}
               </span>
             </div>
             {activeFilter !== 'Barchasi' && (
@@ -276,20 +291,21 @@ export default function HomePage() {
                 }}
                 className="flex items-center gap-1 text-[12.5px] text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
               >
-                Barchasi <ChevronRight className="w-4 h-4" />
+                {t('cat_all')} <ChevronRight className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5">
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
             {filteredProducts.length === 0 ? (
               <div className="col-span-full py-12 px-4 text-center bg-white rounded-3xl border border-slate-100 shadow-sm space-y-3">
                 <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
                   <Search className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold text-slate-800">Ushbu toifada mahsulot topilmadi</h3>
+                <h3 className="text-base font-bold text-slate-800">{t('no_products_title')}</h3>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  Boshqa kategoriya yoki qidiruv so'zini sinab ko'ring yoki barcha mahsulotlarni ko'ring.
+                  {t('no_products_desc')}
                 </p>
                 <button
                   onClick={() => {
@@ -298,7 +314,7 @@ export default function HomePage() {
                   }}
                   className="btn-green px-5 py-2.5 text-xs font-bold rounded-xl shadow-sm"
                 >
-                  Barcha mahsulotlarni ko'rsatish
+                  {t('btn_show_all_products')}
                 </button>
               </div>
             ) : (
@@ -313,14 +329,14 @@ export default function HomePage() {
                   >
                     {/* AI Badge */}
                     {product.isAI && (
-                      <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm soft-pulse">
-                        <Sparkles className="w-3 h-3" />
-                        AI tavsiya
+                      <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10 flex items-center gap-1 bg-emerald-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full shadow-sm soft-pulse">
+                        <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                        {t('card_ai_badge')}
                       </div>
                     )}
 
                     {/* Discount tag */}
-                    <div className="absolute top-2.5 right-2.5 z-10 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                    <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 bg-rose-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full shadow-sm">
                       {product.discount}%
                     </div>
 
@@ -333,61 +349,61 @@ export default function HomePage() {
                       <img
                         src={product.img}
                         alt={product.name}
-                        className="absolute inset-0 w-full h-full object-contain p-4 hover:scale-105 transition-transform duration-300 drop-shadow-md"
+                        className="absolute inset-0 w-full h-full object-contain p-3 sm:p-4 hover:scale-105 transition-transform duration-300 drop-shadow-md"
                       />
                     </div>
 
                     {/* Info */}
-                    <div className="p-3.5 flex flex-col flex-1 bg-white">
-                      <div className="text-[11px] text-slate-400 font-medium">{product.brand}</div>
-                      <div className="text-[14px] font-bold text-slate-800 leading-tight mb-1">{product.name}</div>
+                    <div className="p-2.5 sm:p-3.5 flex flex-col flex-1 bg-white">
+                      <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium">{product.brand}</div>
+                      <div className="text-[12.5px] sm:text-[14px] font-bold text-slate-800 leading-snug line-clamp-2 h-9 mb-1">{product.name}</div>
 
-                      <div className="flex items-baseline gap-2 mb-2">
-                        <span className="text-[14px] font-extrabold text-slate-800">{product.price} so'm</span>
+                      <div className="flex items-baseline gap-1.5 mb-1.5">
+                        <span className="text-[12.5px] sm:text-[14px] font-extrabold text-slate-800">{product.price} {t('currency_symbol')}</span>
                         {product.oldPrice && (
-                          <span className="text-[11px] text-slate-400 line-through">{product.oldPrice}</span>
+                          <span className="text-[10px] sm:text-[11px] text-slate-400 line-through">{product.oldPrice}</span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-3">
+                      <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 mb-2 sm:mb-3">
                         <div className="flex items-center text-amber-500 font-semibold">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-0.5" />
+                          <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400 mr-0.5" />
                           {product.rating}
                         </div>
                         <span>•</span>
-                        <span className="text-slate-600 font-medium">{product.shop}</span>
+                        <span className="text-slate-600 font-medium truncate">{product.shop}</span>
                       </div>
 
                       {/* Action buttons */}
-                      <div className="mt-auto space-y-1.5">
-                        <div className="grid grid-cols-2 gap-1.5">
+                      <div className="mt-auto space-y-1 sm:space-y-1.5 pt-1">
+                        <div className="grid grid-cols-2 gap-1 sm:gap-1.5">
                           <button
                             onClick={() => handleOpenDetail(product)}
-                            className="w-full py-2 text-[12px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors font-bold flex items-center justify-center gap-1"
+                            className="w-full py-1.5 sm:py-2 text-[10px] sm:text-[12px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors font-bold flex items-center justify-center gap-0.5 sm:gap-1"
                           >
-                            Batafsil
+                            {t('btn_details')}
                           </button>
                           <button
                             onClick={() => handleBuyProduct(product)}
-                            className="btn-green w-full py-2 text-[12px] flex items-center justify-center gap-1 font-bold shadow-xs"
+                            className="btn-green w-full py-1.5 sm:py-2 text-[10px] sm:text-[12px] flex items-center justify-center gap-0.5 sm:gap-1 font-bold shadow-xs whitespace-nowrap"
                           >
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            Sotib olish
+                            <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+                            {t('btn_buy')}
                           </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-1.5">
+                        <div className="grid grid-cols-2 gap-1 sm:gap-1.5">
                           <button
                             onClick={() => addToCart(product)}
-                            className="w-full py-1.5 text-[11px] text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors font-semibold border border-emerald-200/60 flex items-center justify-center gap-1"
+                            className="w-full py-1.5 text-[10px] sm:text-[11px] text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors font-semibold border border-emerald-200/60 flex items-center justify-center gap-0.5 sm:gap-1 whitespace-nowrap"
                           >
-                            <ShoppingCart className="w-3 h-3" />
-                            Savatga
+                            <ShoppingCart className="w-3 h-3 flex-shrink-0" />
+                            {t('btn_add_cart')}
                           </button>
                           <button
                             onClick={() => handlePriceAlert(product.name)}
-                            className="w-full py-1.5 text-[11px] text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors font-medium border border-slate-200/60 flex items-center justify-center gap-1"
+                            className="w-full py-1.5 text-[10px] sm:text-[11px] text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors font-medium border border-slate-200/60 flex items-center justify-center gap-0.5 sm:gap-1 truncate"
                           >
-                            Taqqoslash
+                            {t('nav_compare')}
                           </button>
                         </div>
                       </div>
@@ -397,6 +413,7 @@ export default function HomePage() {
               })
             )}
           </div>
+
         </div>
 
         {/* ── 3 STATUS / BENEFIT CARDS ── */}
@@ -406,8 +423,20 @@ export default function HomePage() {
               <TrendingDown className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="font-bold text-[13px] leading-tight">Bu oyda siz 1 250 000 so'm gacha tejashingiz mumkin!</div>
-              <div className="text-[11px] text-emerald-50/80 mt-1">Narxlarni solishtirish orqali eng yaxshi takliflarni toping.</div>
+              <div className="font-bold text-[13px] leading-tight">
+                {language === 'ru' 
+                  ? 'В этом месяце вы можете сэкономить до 1 250 000 сум!'
+                  : language === 'en'
+                  ? 'You could save up to 1,250,000 UZS this month!'
+                  : 'Bu oyda siz 1 250 000 so\'m gacha tejashingiz mumkin!'}
+              </div>
+              <div className="text-[11px] text-emerald-50/80 mt-1">
+                {language === 'ru'
+                  ? 'Сравнивайте цены и находите самые выгодные предложения.'
+                  : language === 'en'
+                  ? 'Find the best deals by comparing prices across stores.'
+                  : 'Narxlarni solishtirish orqali eng yaxshi takliflarni toping.'}
+              </div>
             </div>
           </div>
 
@@ -416,8 +445,14 @@ export default function HomePage() {
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="font-bold text-[13px] leading-tight">Eng yaxshi takliflar</div>
-              <div className="text-[11px] text-amber-50/80 mt-1">50+ do'konlardan eng yaxshi narxlar va chegirmalar.</div>
+              <div className="font-bold text-[13px] leading-tight">{t('best_offers_heading')}</div>
+              <div className="text-[11px] text-amber-50/80 mt-1">
+                {language === 'ru'
+                  ? 'Лучшие цены и скидки из 50+ магазинов.'
+                  : language === 'en'
+                  ? 'Best prices and discounts from 50+ stores.'
+                  : '50+ do\'konlardan eng yaxshi narxlar va chegirmalar.'}
+              </div>
             </div>
           </div>
 
@@ -426,19 +461,26 @@ export default function HomePage() {
               <TrendingDown className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="font-bold text-[13px] leading-tight">Narxlar tarixi</div>
-              <div className="text-[11px] text-teal-50/80 mt-1">Mahsulot narxlarining o'zgarishini kuzating va arzon paytda oling.</div>
+              <div className="font-bold text-[13px] leading-tight">{t('nav_price_history')}</div>
+              <div className="text-[11px] text-teal-50/80 mt-1">
+                {language === 'ru'
+                  ? 'Следите за динамикой цен и покупайте в самый выгодный момент.'
+                  : language === 'en'
+                  ? 'Track price history and buy at the lowest point.'
+                  : 'Mahsulot narxlarining o\'zgarishini kuzating va arzon paytda oling.'}
+              </div>
             </div>
           </div>
         </div>
+
 
         {/* ── BOTTOM SECTIONS: CHEGIRMALAR & BYUDJET ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Narxi tushganlar */}
           <div className="app-card p-4 border border-slate-100">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[14px] font-bold text-slate-800">Narxi tushgan mahsulotlar</h3>
-              <span className="text-[11.5px] text-emerald-600 font-semibold cursor-pointer">Barchasi →</span>
+              <h3 className="text-[14px] font-bold text-slate-800">{t('special_deals_heading')}</h3>
+              <span className="text-[11.5px] text-emerald-600 font-semibold cursor-pointer">{t('see_all_arrow')}</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
@@ -461,17 +503,17 @@ export default function HomePage() {
           {/* Byudjetingizga mos */}
           <div className="app-card p-4 border border-slate-100">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[14px] font-bold text-slate-800">Byudjetingizga mos mahsulotlar</h3>
-              <span className="text-[11.5px] text-emerald-600 font-semibold cursor-pointer">Barchasi →</span>
+              <h3 className="text-[14px] font-bold text-slate-800">{t('budget_fit_heading')}</h3>
+              <span className="text-[11.5px] text-emerald-600 font-semibold cursor-pointer">{t('see_all_arrow')}</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { range: '1M – 3M so\'m', name: 'Quloqchinlar', img: '/products/sony-headphones.jpg' },
-                { range: '3M – 8M so\'m', name: 'Smartfonlar', img: '/products/iphone-15.jpg' },
-                { range: '8M+ so\'m', name: 'Noutbuklar', img: '/products/macbook-air.jpg' },
+                { range: '1M – 3M', name: t('cat_headphones'), img: '/products/sony-headphones.jpg' },
+                { range: '3M – 8M', name: t('cat_smartphones'), img: '/products/iphone-15.jpg' },
+                { range: '8M+', name: t('cat_laptops'), img: '/products/macbook-air.jpg' },
               ].map(item => (
                 <div key={item.range} className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50/50 transition-colors flex flex-col items-center text-center cursor-pointer relative">
-                  <span className="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full mb-1">{item.range}</span>
+                  <span className="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full mb-1">{item.range} {t('currency_symbol')}</span>
                   <div className="w-14 h-14 my-1">
                     <img src={item.img} alt={item.name} className="w-full h-full object-contain" />
                   </div>
@@ -484,9 +526,28 @@ export default function HomePage() {
 
       </div>
 
+      {/* Floating AI Panel button for Phone & Tablet (< xl) */}
+      <button
+        onClick={() => {
+          setRightPanelOpen(true);
+          setTimeout(() => {
+            document.getElementById('ai-analysis-panel')?.scrollIntoView({ behavior: 'smooth' });
+          }, 50);
+        }}
+        className="xl:hidden fixed bottom-18 right-3.5 z-30 bg-slate-900/90 hover:bg-slate-900 text-white px-3.5 py-2.5 rounded-full shadow-2xl border border-emerald-500/40 backdrop-blur-md flex items-center gap-2 text-xs font-black transition-transform active:scale-95"
+        title={t('right_ai_title')}
+      >
+        <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+        <span className="hidden sm:inline">{t('right_ai_title')}</span>
+        <span className="sm:hidden">AI</span>
+      </button>
+
       {/* ─── RIGHT SIDEBAR (AI MAHSULOT TAHLILI & NARX TARIXI) ─── */}
       {rightPanelOpen && (
-        <aside className="w-full xl:w-[380px] bg-white border-l border-slate-200/80 p-5 flex flex-col gap-5 overflow-y-auto max-h-screen sticky top-0 flex-shrink-0 shadow-sm">
+        <aside
+          id="ai-analysis-panel"
+          className="w-full xl:w-[380px] bg-white border-t xl:border-t-0 xl:border-l border-slate-200/80 p-4 sm:p-5 flex flex-col gap-5 overflow-y-auto max-h-screen sticky top-0 flex-shrink-0 shadow-sm"
+        >
           
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -494,11 +555,11 @@ export default function HomePage() {
               <div className="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
                 <Sparkles className="w-3.5 h-3.5" />
               </div>
-              <span>AI Mahsulot tahlili</span>
+              <span>{t('right_ai_title')}</span>
             </div>
             <button
               onClick={() => setRightPanelOpen(false)}
-              className="xl:hidden p-1 text-slate-400 hover:text-slate-600"
+              className="xl:hidden p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -508,15 +569,15 @@ export default function HomePage() {
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
             <div className="w-16 h-16 rounded-xl bg-white p-1.5 shadow-sm border border-slate-100 flex-shrink-0">
               <img
-                src={selectedProduct.img}
-                alt={selectedProduct.name}
+                src={activeProduct.img}
+                alt={activeProduct.name}
                 className="w-full h-full object-contain"
               />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs text-slate-400 font-medium">{selectedProduct.brand}</div>
-              <div className="text-[15px] font-extrabold text-slate-800 leading-tight">{selectedProduct.name}</div>
-              <div className="text-[14px] font-extrabold text-emerald-600 mt-0.5">{selectedProduct.price} so'm</div>
+              <div className="text-xs text-slate-400 font-medium">{activeProduct.brand}</div>
+              <div className="text-[15px] font-extrabold text-slate-800 leading-tight">{activeProduct.name}</div>
+              <div className="text-[14px] font-extrabold text-emerald-600 mt-0.5">{activeProduct.price} {t('currency_symbol')}</div>
             </div>
           </div>
 
@@ -524,10 +585,10 @@ export default function HomePage() {
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Qisqacha xulosa
+              {t('right_summary_title')}
             </div>
             <p className="text-[12.5px] text-slate-600 leading-relaxed bg-slate-50/70 p-3 rounded-xl border border-slate-100">
-              {selectedProduct.summary}
+              {activeProduct.summary}
             </p>
           </div>
 
@@ -536,10 +597,10 @@ export default function HomePage() {
             {/* Pros */}
             <div className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100">
               <div className="text-[12px] font-bold text-emerald-800 mb-2 flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-600" /> Afzalliklari
+                <Check className="w-3.5 h-3.5 text-emerald-600" /> {t('right_pros_title')}
               </div>
               <ul className="space-y-1.5">
-                {selectedProduct.pros.slice(0, 3).map((pro, i) => (
+                {activeProduct.pros.slice(0, 3).map((pro, i) => (
                   <li key={i} className="text-[11px] text-emerald-900/80 flex items-start gap-1.5 leading-snug">
                     <span className="text-emerald-500 font-bold">•</span>
                     <span>{pro}</span>
@@ -551,10 +612,10 @@ export default function HomePage() {
             {/* Cons */}
             <div className="p-3 rounded-xl bg-rose-50/50 border border-rose-100">
               <div className="text-[12px] font-bold text-rose-800 mb-2 flex items-center gap-1">
-                <X className="w-3.5 h-3.5 text-rose-600" /> Kamchiliklari
+                <X className="w-3.5 h-3.5 text-rose-600" /> {t('right_cons_title')}
               </div>
               <ul className="space-y-1.5">
-                {selectedProduct.cons.slice(0, 2).map((con, i) => (
+                {activeProduct.cons.slice(0, 2).map((con, i) => (
                   <li key={i} className="text-[11px] text-rose-900/80 flex items-start gap-1.5 leading-snug">
                     <span className="text-rose-500 font-bold">•</span>
                     <span>{con}</span>
@@ -567,18 +628,18 @@ export default function HomePage() {
           {/* Kimlar uchun mos? */}
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
             <div className="text-[12px] font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-              <span>👥</span> Kimlar uchun mos?
+              <span>👥</span> {t('right_for_whom')}
             </div>
             <p className="text-[11.5px] text-slate-600 leading-snug">
-              {selectedProduct.forWhom}
+              {activeProduct.forWhom}
             </p>
           </div>
 
           {/* Arzonroq muqobillar */}
           <div>
-            <div className="text-[12px] font-bold text-slate-700 mb-2">Arzonroq muqobillar</div>
+            <div className="text-[12px] font-bold text-slate-700 mb-2">{t('right_alternatives')}</div>
             <div className="grid grid-cols-2 gap-2">
-              {selectedProduct.alternatives.map((alt) => (
+              {activeProduct.alternatives.map((alt) => (
                 <div key={alt.name} className="p-2.5 rounded-xl border border-slate-200/80 hover:border-emerald-300 transition-colors flex items-center gap-2 cursor-pointer bg-white">
                   <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-slate-50 p-1">
                     <img src={alt.img} alt={alt.name} className="w-full h-full object-contain" />
@@ -596,31 +657,31 @@ export default function HomePage() {
           <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-sm space-y-2">
             <div className="flex items-center gap-1.5 font-bold text-[13px]">
               <Sparkles className="w-4 h-4 text-emerald-200" />
-              AI tavsiyasi
+              {t('right_ai_verdict')}
             </div>
             <p className="text-[12px] text-emerald-50 leading-relaxed">
-              {selectedProduct.aiVerdict}
+              {activeProduct.aiVerdict}
             </p>
             <button
               onClick={() => setModalOpen(true)}
               className="w-full py-2 bg-white text-emerald-700 font-bold rounded-xl text-[12px] shadow hover:bg-emerald-50 transition-colors flex items-center justify-center gap-1.5 mt-2"
             >
-              Batafsil tahlilni ko'rish <ArrowRight className="w-3.5 h-3.5" />
+              {language === 'ru' ? 'Посмотреть подробный анализ' : language === 'en' ? 'View detailed analysis' : "Batafsil tahlilni ko'rish"} <ArrowRight className="w-3.5 h-3.5" />
             </button>
             <div className="grid grid-cols-2 gap-2 mt-2 pt-1">
               <button
-                onClick={() => handleBuyProduct(selectedProduct)}
+                onClick={() => handleBuyProduct(activeProduct)}
                 className="w-full py-2.5 bg-slate-900 text-white hover:bg-slate-800 font-bold rounded-xl text-[12px] shadow hover:scale-[1.01] transition-all flex items-center justify-center gap-1.5"
               >
                 <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
-                Sotib olish
+                {t('btn_buy')}
               </button>
               <button
-                onClick={() => addToCart(selectedProduct)}
+                onClick={() => addToCart(activeProduct)}
                 className="w-full py-2.5 bg-emerald-700/60 hover:bg-emerald-700 text-white font-bold rounded-xl text-[12px] transition-colors flex items-center justify-center gap-1.5 border border-emerald-400/40"
               >
                 <ShoppingCart className="w-3.5 h-3.5" />
-                Savatga
+                {t('btn_add_cart')}
               </button>
             </div>
           </div>
@@ -628,9 +689,12 @@ export default function HomePage() {
           {/* Narx tarixi grafik kartochkasi */}
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
-              <div className="text-[13px] font-bold text-slate-800">Narx tarixi</div>
-              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">30 kun</span>
+              <div className="text-[13px] font-bold text-slate-800">{t('nav_price_history')}</div>
+              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                {language === 'ru' ? '30 дней' : language === 'en' ? '30 days' : '30 kun'}
+              </span>
             </div>
+
 
             {/* Interactive SVG Chart */}
             <div className="h-28 w-full relative">
@@ -725,20 +789,22 @@ export default function HomePage() {
             {/* Header info */}
             <div className="flex flex-col sm:flex-row items-center gap-5 pb-5 border-b border-slate-100">
               <div className="w-28 h-28 rounded-2xl bg-slate-50 border border-slate-100 p-2 flex-shrink-0 flex items-center justify-center">
-                <img src={selectedProduct.img} alt={selectedProduct.name} className="w-full h-full object-contain" />
+                <img src={activeProduct.img} alt={activeProduct.name} className="w-full h-full object-contain" />
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold mb-1.5">
                   <Sparkles className="w-3 h-3 text-emerald-600" />
-                  Sun'iy Intellekt Chuqur Tahlili
+                  {language === 'ru' ? 'Глубокий анализ искусственного интеллекта' : language === 'en' ? 'Deep AI Product Analysis' : "Sun'iy Intellekt Chuqur Tahlili"}
                 </div>
-                <h2 className="text-2xl font-black text-slate-800">{selectedProduct.name}</h2>
-                <div className="text-sm text-slate-400">{selectedProduct.brand} • {selectedProduct.shop}</div>
-                <div className="text-xl font-extrabold text-emerald-600 mt-1">{selectedProduct.price} so'm</div>
+                <h2 className="text-2xl font-black text-slate-800">{activeProduct.name}</h2>
+                <div className="text-sm text-slate-400">{activeProduct.brand} • {activeProduct.shop}</div>
+                <div className="text-xl font-extrabold text-emerald-600 mt-1">{activeProduct.price} {t('currency_symbol')}</div>
               </div>
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-center flex-shrink-0">
-                <div className="text-2xl font-black text-emerald-600">{selectedProduct.overallScore}</div>
-                <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">AI Reytingi / 10</div>
+                <div className="text-2xl font-black text-emerald-600">{activeProduct.overallScore}</div>
+                <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                  {language === 'ru' ? 'Рейтинг ИИ / 10' : language === 'en' ? 'AI Rating / 10' : 'AI Reytingi / 10'}
+                </div>
               </div>
             </div>
 
@@ -747,35 +813,35 @@ export default function HomePage() {
               <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
-                  Do'konlar bo'yicha eng arzon narxlar solishtiruvi
+                  {language === 'ru' ? 'Сравнение лучших цен по магазинам' : language === 'en' ? 'Price comparison across stores' : "Do'konlar bo'yicha eng arzon narxlar solishtiruvi"}
                 </span>
                 <span className="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">
-                  Eng foydali do'kondan oling
+                  {language === 'ru' ? 'Покупайте выгодно' : language === 'en' ? 'Best value stores' : "Eng foydali do'kondan oling"}
                 </span>
               </h3>
               <div className="divide-y divide-slate-100 border border-slate-100 rounded-2xl overflow-hidden shadow-xs">
-                {selectedProduct.shops.map((s, idx) => (
+                {activeProduct.shops.map((s, idx) => (
                   <div key={idx} className={`p-3 sm:p-3.5 flex items-center justify-between text-xs ${s.isBest ? 'bg-emerald-50/70 font-bold' : 'hover:bg-slate-50'}`}>
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-slate-800 text-[13px]">{s.name}</span>
                       {s.isBest && (
                         <span className="bg-emerald-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
-                          Eng arzon taklif!
+                          {language === 'ru' ? 'Лучшая цена!' : language === 'en' ? 'Best Deal!' : 'Eng arzon taklif!'}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2.5 sm:gap-3">
-                      <span className="text-slate-500 font-normal hidden sm:inline">{s.delivery} yetkazish</span>
+                      <span className="text-slate-500 font-normal hidden sm:inline">{s.delivery}</span>
                       <span className="text-slate-900 font-black text-[13px] sm:text-[13.5px]">{s.price}</span>
                       <button
                         onClick={() => {
                           setModalOpen(false);
-                          handleBuyProduct(selectedProduct, s);
+                          handleBuyProduct(activeProduct, s);
                         }}
                         className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-xs flex items-center gap-1"
                       >
                         <ShoppingBag className="w-3 h-3" />
-                        Sotib olish
+                        {t('btn_buy')}
                       </button>
                     </div>
                   </div>
@@ -787,15 +853,15 @@ export default function HomePage() {
             <div>
               <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-1.5">
                 <Cpu className="w-4 h-4 text-emerald-600" />
-                Funksiyalar va Ko'rsatkichlar tahlili
+                {language === 'ru' ? 'Анализ функций и характеристик' : language === 'en' ? 'Features & Performance Breakdown' : "Funksiyalar va Ko'rsatkichlar tahlili"}
               </h3>
               <div className="space-y-2.5">
                 {[
-                  { label: 'Kamera va Video sifati', score: selectedProduct.scores.camera },
-                  { label: 'Batareya va Quvvat saqlash', score: selectedProduct.scores.battery },
-                  { label: 'Tezlik va Protsessor unumdorligi', score: selectedProduct.scores.performance },
-                  { label: 'Ekran va Rang uzatish sifati', score: selectedProduct.scores.display },
-                  { label: 'Narx va Sifat mutanosibligi', score: selectedProduct.scores.value },
+                  { label: language === 'ru' ? 'Качество камеры и видео' : language === 'en' ? 'Camera & Video Quality' : 'Kamera va Video sifati', score: activeProduct.scores.camera },
+                  { label: language === 'ru' ? 'Автономность и батарея' : language === 'en' ? 'Battery & Longevity' : 'Batareya va Quvvat saqlash', score: activeProduct.scores.battery },
+                  { label: language === 'ru' ? 'Производительность процессора' : language === 'en' ? 'Processor & Speed' : 'Tezlik va Protsessor unumdorligi', score: activeProduct.scores.performance },
+                  { label: language === 'ru' ? 'Экран и цветопередача' : language === 'en' ? 'Display & Color Accuracy' : 'Ekran va Rang uzatish sifati', score: activeProduct.scores.display },
+                  { label: language === 'ru' ? 'Соотношение цена/качество' : language === 'en' ? 'Price to Value Ratio' : 'Narx va Sifat mutanosibligi', score: activeProduct.scores.value },
                 ].filter(item => item.score > 0).map(item => (
                   <div key={item.label}>
                     <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
@@ -817,10 +883,10 @@ export default function HomePage() {
             <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-emerald-950 text-xs leading-relaxed space-y-1">
               <div className="font-bold flex items-center gap-1.5 text-emerald-900 text-[13px]">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                SmartSavdo Sun'iy Intellekt maslahati:
+                {language === 'ru' ? 'Совет искусственного интеллекта SmartSavdo:' : language === 'en' ? 'SmartSavdo AI Shopping Advice:' : "SmartSavdo Sun'iy Intellekt maslahati:"}
               </div>
               <p>
-                Ushbu mahsulot narxi oxirgi 30 kun ichida eng qulay nuqtasiga yetgan. Agar siz sifatli va uzoq xizmat qiluvchi qurilma qidirayotgan bo'lsangiz, hozirgi narxda xarid qilish 100% o'zini oqlaydi!
+                {activeProduct.aiVerdict}
               </p>
             </div>
 
@@ -829,30 +895,30 @@ export default function HomePage() {
               <div className="space-y-1 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-1.5 font-black text-sm">
                   <Sparkles className="w-4 h-4 text-emerald-200" />
-                  Mahsulot ma'qul keldimi?
+                  {language === 'ru' ? 'Понравился товар?' : language === 'en' ? 'Ready to purchase?' : "Mahsulot ma'qul keldimi?"}
                 </div>
                 <p className="text-xs text-emerald-100">
-                  Eng arzon kafolatlangan narxda hoziroq buyurtma bering yoki savatingizga saqlang!
+                  {language === 'ru' ? 'Заказывайте по гарантированно лучшей цене прямо сейчас!' : language === 'en' ? 'Order at the guaranteed lowest price right now!' : 'Eng arzon kafolatlangan narxda hoziroq buyurtma bering yoki savatingizga saqlang!'}
                 </p>
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => {
                     setModalOpen(false);
-                    handleBuyProduct(selectedProduct);
+                    handleBuyProduct(activeProduct);
                   }}
                   className="flex-1 sm:flex-initial px-5 py-2.5 bg-white text-emerald-800 hover:bg-emerald-50 font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
                 >
                   <ShoppingBag className="w-4 h-4 text-emerald-600" />
-                  Ha, sotib olish
+                  {language === 'ru' ? 'Да, купить' : language === 'en' ? 'Yes, Buy Now' : 'Ha, sotib olish'}
                 </button>
                 <button
-                  onClick={() => addToCart(selectedProduct)}
+                  onClick={() => addToCart(activeProduct)}
                   className="px-3.5 py-2.5 bg-emerald-800/60 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl border border-emerald-400/40 transition-colors flex items-center justify-center gap-1"
                   title="Savatga saqlash"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  Savatga
+                  {t('btn_add_cart')}
                 </button>
               </div>
             </div>
@@ -862,38 +928,33 @@ export default function HomePage() {
               <button
                 onClick={() => {
                   setModalOpen(false);
-                  handleBuyProduct(selectedProduct);
+                  handleBuyProduct(activeProduct);
                 }}
                 className="btn-green flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-emerald-500/25"
               >
-                <ShoppingBag className="w-4 h-4" /> Hoziroq sotib olish
+                <ShoppingBag className="w-4 h-4" />
+                {t('btn_buy')}
               </button>
               <button
                 onClick={() => {
-                  addToCart(selectedProduct);
-                }}
-                className="px-4 py-3 text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-colors flex items-center justify-center gap-1.5"
-              >
-                <ShoppingCart className="w-4 h-4" /> Savatga
-              </button>
-              <button
-                onClick={() => {
-                  handlePriceAlert(selectedProduct.name);
+                  addToCart(activeProduct);
                   setModalOpen(false);
                 }}
-                className="px-4 py-3 text-xs font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5"
+                className="px-6 py-3 rounded-2xl border-2 border-emerald-500 text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2"
               >
-                <Bell className="w-3.5 h-3.5" /> Narx kuzatish
+                <ShoppingCart className="w-4 h-4" />
+                {t('btn_add_cart')}
               </button>
               <button
                 onClick={() => setModalOpen(false)}
                 className="px-4 py-3 text-sm font-semibold text-slate-500 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors"
               >
-                Yopish
+                {language === 'ru' ? 'Закрыть' : language === 'en' ? 'Close' : 'Yopish'}
               </button>
             </div>
           </div>
         </div>
+
       )}
 
       {/* ─── CHECKOUT MODAL ─── */}

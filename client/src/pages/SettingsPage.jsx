@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, Bell, Shield, MapPin, Globe, CreditCard, 
   Package, Check, Save, Sparkles, Moon, Smartphone, 
@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 
 const REGIONS = [
@@ -29,6 +30,7 @@ const REGIONS = [
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
   const { orders, showToast } = useCart();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('profil');
@@ -61,11 +63,15 @@ export default function SettingsPage() {
 
   // App Preferences
   const [preferences, setPreferences] = useState({
-    language: 'uz',
+    language: language || 'uz',
     currency: 'UZS',
     aiEngine: 'balanced', // saving, balanced, premium
     autoCompare: true
   });
+
+  useEffect(() => {
+    setPreferences(prev => ({ ...prev, language }));
+  }, [language]);
 
   // Security form
   const [passForm, setPassForm] = useState({
@@ -80,8 +86,8 @@ export default function SettingsPage() {
     try {
       localStorage.setItem('smartsavdo_profile', JSON.stringify(profile));
     } catch {}
-    setSaveSuccess('Profil ma\'lumotlari muvaffaqiyatli saqlandi! ✓');
-    showToast('Profil ma\'lumotlari saqlandi! ✓');
+    setSaveSuccess(t('profile_saved'));
+    showToast(t('profile_saved'));
     setTimeout(() => setSaveSuccess(''), 3500);
   };
 
@@ -90,7 +96,7 @@ export default function SettingsPage() {
   };
 
   const handlePreferencesSave = () => {
-    showToast('Tizim afzalliklari saqlandi! ✓');
+    showToast(t('preferences_saved'));
   };
 
   const handlePasswordChange = (e) => {
@@ -108,13 +114,14 @@ export default function SettingsPage() {
   };
 
   const tabs = [
-    { id: 'profil', label: 'Profil sozlamalari', icon: User },
-    { id: 'buyurtmalar', label: 'Buyurtmalar tarixi', icon: Package, badge: orders.length },
-    { id: 'bildirishnomalar', label: 'Narx xabarnomalari', icon: Bell },
-    { id: 'manzillar', label: 'Yetkazib berish manzili', icon: MapPin },
-    { id: 'tizim', label: 'Ilova va AI afzalliklari', icon: Globe },
-    { id: 'xavfsizlik', label: 'Xavfsizlik va Parol', icon: Shield },
+    { id: 'profil', label: t('tab_profile'), icon: User },
+    { id: 'buyurtmalar', label: t('tab_orders'), icon: Package, badge: orders.length },
+    { id: 'bildirishnomalar', label: t('tab_alerts'), icon: Bell },
+    { id: 'manzillar', label: t('tab_addresses'), icon: MapPin },
+    { id: 'tizim', label: t('tab_system'), icon: Globe },
+    { id: 'xavfsizlik', label: t('tab_security'), icon: Shield },
   ];
+
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 animate-fadeIn min-w-0">
@@ -142,7 +149,7 @@ export default function SettingsPage() {
             onClick={() => navigate('/')}
             className="px-4 py-2.5 bg-white/15 hover:bg-white/25 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
           >
-            Bosh sahifaga qaytish
+            {t('back_to_home')}
           </button>
           <button
             onClick={async () => {
@@ -152,7 +159,7 @@ export default function SettingsPage() {
             className="px-4 py-2.5 bg-rose-500/80 hover:bg-rose-500 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm"
           >
             <LogOut className="w-3.5 h-3.5" />
-            Chiqish
+            {t('nav_logout')}
           </button>
         </div>
       </div>
@@ -160,38 +167,41 @@ export default function SettingsPage() {
       {/* Main Grid: Sidebar + Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        {/* Navigation Tabs (Sidebar on desktop, horizontal scroll on mobile) */}
-        <div className="lg:col-span-1 space-y-1 bg-white p-3 rounded-2xl border border-slate-100 shadow-xs h-fit">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 py-2">
-            Bo'limlar
+        {/* Navigation Tabs (Sidebar on desktop, horizontal scroll on mobile & tablet) */}
+        <div className="lg:col-span-1 bg-white p-2 sm:p-3 rounded-2xl border border-slate-100 shadow-xs h-fit">
+          <div className="hidden lg:block text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 py-2">
+            {t('settings_title')}
           </div>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  isActive
-                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
-                </div>
-                {tab.badge !== undefined && tab.badge > 0 && (
-                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                    isActive ? 'bg-white text-emerald-700' : 'bg-emerald-100 text-emerald-800'
-                  }`}>
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+
+          <div className="flex lg:flex-col overflow-x-auto scrollbar-none gap-1.5 p-0.5">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0 ${
+                    isActive
+                      ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 bg-slate-50 lg:bg-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    <span>{tab.label}</span>
+                  </div>
+                  {tab.badge !== undefined && tab.badge > 0 && (
+                    <span className={`ml-2 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${
+                      isActive ? 'bg-white text-emerald-700' : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Content Panel */}
@@ -480,26 +490,30 @@ export default function SettingsPage() {
           {activeTab === 'tizim' && (
             <div className="space-y-5 animate-fadeIn">
               <div className="pb-3 border-b border-slate-100">
-                <h3 className="text-lg font-black text-slate-800">Ilova va AI sozlamalari</h3>
-                <p className="text-xs text-slate-400">Til, valyuta va sun'iy intellekt xarid strategiyasini boshqaring</p>
+                <h3 className="text-lg font-black text-slate-800">{t('tab_system')}</h3>
+                <p className="text-xs text-slate-400">{t('settings_subtitle')}</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1.5">Tizim tili</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1.5">{t('system_lang')}</label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { id: 'uz', label: 'O\'zbekcha (Lotin)' },
-                      { id: 'uz-cyr', label: 'Ўзбекча (Кирилл)' },
-                      { id: 'ru', label: 'Русский язык' },
+                      { id: 'uz', label: "O'zbekcha (UZ)" },
+                      { id: 'en', label: "English (EN)" },
+                      { id: 'ru', label: "Русский (RU)" },
                     ].map(lang => (
                       <button
                         key={lang.id}
                         type="button"
-                        onClick={() => setPreferences({ ...preferences, language: lang.id })}
+                        onClick={() => {
+                          setLanguage(lang.id);
+                          setPreferences(prev => ({ ...prev, language: lang.id }));
+                          showToast(`${t('lang_changed')} ${lang.label}`);
+                        }}
                         className={`p-2.5 rounded-xl border text-xs font-bold transition-all ${
-                          preferences.language === lang.id
-                            ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20'
+                          language === lang.id
+                            ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20 shadow-xs'
                             : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
@@ -510,11 +524,11 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1.5">Asosiy valyuta</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1.5">{t('main_currency')}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'UZS', label: 'So\'m (UZS)' },
-                      { id: 'USD', label: 'AQSH Dollari ($ USD)' },
+                      { id: 'UZS', label: t('currency_uzs') },
+                      { id: 'USD', label: t('currency_usd') },
                     ].map(cur => (
                       <button
                         key={cur.id}
@@ -534,13 +548,13 @@ export default function SettingsPage() {
 
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1.5">
-                    SmartSavdo Sun'iy Intellekt strategiyasi
+                    {t('ai_strategy')}
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
-                      { id: 'saving', label: 'Maksimal tejash', desc: 'Eng past narxlarni birinchi o\'ringa qo\'yadi' },
-                      { id: 'balanced', label: 'Muvozanatli (Tavsiya)', desc: 'Narx va sifat nisbati optimal darajada' },
-                      { id: 'premium', label: 'Premium sifat', desc: 'Rasmiy kafolat va eng yuqori reyting' },
+                      { id: 'saving', label: t('ai_strategy_max_save'), desc: t('ai_strategy_max_save_desc') },
+                      { id: 'balanced', label: t('ai_strategy_balanced'), desc: t('ai_strategy_balanced_desc') },
+                      { id: 'premium', label: t('ai_strategy_premium'), desc: t('ai_strategy_premium_desc') },
                     ].map(eng => (
                       <div
                         key={eng.id}
@@ -564,11 +578,12 @@ export default function SettingsPage() {
                   onClick={handlePreferencesSave}
                   className="btn-green px-5 py-2 text-xs font-bold rounded-xl shadow-sm"
                 >
-                  Afzalliklarni saqlash
+                  {t('save_preferences')}
                 </button>
               </div>
             </div>
           )}
+
 
           {/* 6. XAVFSIZLIK VA PAROL */}
           {activeTab === 'xavfsizlik' && (

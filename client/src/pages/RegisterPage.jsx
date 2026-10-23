@@ -101,8 +101,8 @@ export default function RegisterPage() {
         <div className="relative z-10 flex flex-col h-full px-14 py-12">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg">
-              <ShoppingCart className="w-6 h-6 text-white" strokeWidth={2.2} />
+            <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border border-white/30 flex-shrink-0">
+              <img src="/app-icon.png" alt="SmartSavdo" className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="text-white font-extrabold text-xl">SmartSavdo</div>
@@ -157,8 +157,8 @@ export default function RegisterPage() {
       <div className="flex-1 lg:max-w-md flex flex-col items-center justify-center px-6 py-10">
         {/* Mobile logo */}
         <div className="flex lg:hidden items-center gap-2.5 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <ShoppingCart className="w-5 h-5 text-white" strokeWidth={2.2} />
+          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-lg shadow-emerald-500/30 flex-shrink-0 border border-emerald-500/20">
+            <img src="/app-icon.png" alt="SmartSavdo" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="font-bold text-slate-800 text-[15px]">SmartSavdo</div>
